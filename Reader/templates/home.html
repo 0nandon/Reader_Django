@@ -1,0 +1,215 @@
+
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block extra-style %}
+    <style>
+        .fa.fa-heart-o.active  {
+            color: #f00 !important;
+        }
+        button .fa.fa-heart-o.list  {
+            color: #888888 !important;
+        }
+        .txt_line {
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+    </style>
+{% endblock %}
+
+{% block home %}<li class="nav-item active">{% endblock %}
+
+{% block main %}
+      <section class="mainContent clearfix">
+        <div class="container">
+          
+          <div class="page-header">
+            <h4>신규 독서방</h4>
+          </div>
+          
+          <div class="row featuredCollection margin-bottom hover">
+            {% for room in rooms %}
+            <div class="col-md-4 col-12">
+              <div class="thumbnail" onclick="{{ room.get_absolute_url }}';">
+                <div class="imageWrapper">
+                  <img src="{% static 'assets/img/home/featured-collection/featured-collection-01.jpg' %}" alt="feature-collection-image" style="border-radius:7px;">
+                  <div class="caption">
+                      <h3>{{ room.subject }}</h3>
+                      <small>인원 모집 마감까지 {{ room.d_day }}일 남았습니다.</small>
+                  </div>
+                  <div class="masking">
+                    <a href="#room{{ room.pk }}" data-toggle="modal" class="btn viewBtn">자세히 보기</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          
+          <div class="page-header">
+            <h4>영문 추천 도서</h4>
+          </div>
+  
+          <div class="row featuredProducts featuredProductsSlider margin-bottom">
+            {% if recommend_books is None %}
+            <p>로그인한 사용자만 이용할 수 있는 서비스입니다.</p>
+            {% else %}
+            {% for recommend in recommend_books %}
+            <div class="slide col-md-3">
+              <div class="productImage clearfix">
+                <img src="{{ recommend.book.image.url }}" style="border-radius:7px;" alt="featured-product-img">
+                <div class="productMasking">
+                  <ul class="list-inline btn-group" role="group">
+                    {% if user.is_active %}
+                    <li><a class="btn btn-default" data-toggle="modal" data-target=".login-modal"><i class="fa fa-heart-o"></i></a></li>
+                    {% elif recommend.book in user.book_set.all %}
+                    <li><a id="wish_fade{{ recommend.book.key }}" class="btn btn-default"><div id="wish_div_fade{{ recommend.book.key }}"><i class="fa fa-heart-o active"></i></div></a></li>
+                    {% else %}
+                    <li><a id="wish_fade{{ recommend.book.key }}" class="btn btn-default"><div id="wish_div_fade{{ recommend.book.key }}"><i class="fa fa-heart-o"></i></div></a></li>
+                    {% endif %}
+                    <li><i class="fa fa-asterisk"></i></li>
+                    <li><a data-toggle="modal" href="#book{{ recommend.book.key }}" class="btn btn-default"><i class="fa fa-eye"></i></a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="productCaption clearfix">
+                <a href="single-product.html">
+                  <h4>{{ recommend.book.name }}</h4>
+                </a>
+                {% include "book/score_predict.html" with score=recommend.score %} 
+              </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+          </div>
+           
+          <div class="page-header">
+            <h4>최근 게시물</h4>
+          </div>
+          <div class="row latestArticles">
+            {% for post in posts %}
+            <div class="col-md-4">
+              <div class="thumbnail">
+                <a href="{{ post.get_absolute_url }}">
+                  <img src="{{ post.image.url }}" alt="article-image">
+                </a>
+                <div class="date-holder">
+                  <p>{{ post.create_dt|date:"d" }}</p>
+                  <span>{{ post.create_dt|date:"M" }}</span>
+                </div>
+                <h5><a href="{{ post.get_absolute_url }}">{{ post.subject }}</a></h5>
+                <span class="meta"> by <a class="pr-1" href="#">{{ post.owner.name }}</a> / <a class="pl-1" href="{{ post.get_absolute_url }}">{{ post.get_comments_num }}개의 댓글</a></span>
+                <div class="caption">
+                  <p class="txt_line">{{ post.explain }}</p>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    
+    {% for recommend in recommend_books %}
+    <div class="modal fade quick-view" id="book{{ recommend.book.key }}" tabindex="-1" role="dialog">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+		  <div class="modal-body">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <div class="media flex-wrap">
+		      <div class="media-left px-0">
+                <a href="{{ recommend.book.get_absolute_url }}"><img class="media-object" src="{{ recommend.book.image.url }}" alt="Image"></a>
+			  </div>
+			  <div class="media-body">
+				<h2>{{ recommend.book.name }}</h2>
+				<h3>{{ recommend.book.code }}</h3>
+				<p>{{ recommend.book.explain }}
+                <br><br>
+                {% load taggit_templatetags2_tags %}
+                {% get_tags_for_object recommend.book as "tags" %}
+                <span style="color:#47bac1;">
+                {% for tag in tags %}
+                #{{ tag.name }}&nbsp;
+                {% endfor %}
+                </span>
+                </p>
+				<div class="btn-area">
+			      <a href="{{ recommend.book.get_absolute_url }}" class="btn btn-primary btn-block" style="margin-top:10px;">
+                  자세히 보기<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+				</div>
+		      </div>
+			</div>
+		  </div>
+		</div>
+      </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#wish_fade{{ recommend.book.key }}').click(function(){
+                $.ajax({
+                    type: 'GET',
+                    url : "{% url 'book:book_wish' recommend.book.key %}",
+                    success: function(data){
+                        $('#wish_div_fade{{ recommend.book.key }}').html(data)
+                    }
+                });
+            });
+        });
+    </script>
+    
+    {% if recommend.book in user.book_set.all %}
+    <script type="text/javascript">
+        $('#wish_fade{{ recommend.book.key }}').on('click', function() {
+		var b = $(this).data('iteration') || 1,
+			c = {
+				title: 'Product',
+				animateInside: !1,
+				position: 'topRight',
+				progressBar: !1,
+				timeout: 3200,
+				transitionIn: 'fadeInLeft',
+				transitionOut: 'fadeOut',
+				transitionInMobile: 'fadeIn',
+				transitionOutMobile: 'fadeOut'
+			};
+		switch (b) {
+			case 2:
+				$(this).addClass('active'), c.class = 'iziToast-info', c.message = '클립에 저장되었습니다.', c.icon = 'icon-bell';
+				break;
+			case 1:
+				$(this).removeClass('active'), c.class = 'iziToast-danger', c.message = '클립 저장이 해제되었습니다.', c.icon = 'icon-ban';
+		}
+		iziToast.show(c), b++, b > 2 && (b = 1), $(this).data('iteration', b);
+	});
+    </script>
+    {% else %}
+    <script type="text/javascript">
+        $('#wish_fade{{ recommend.book.key }}').on('click', function() {
+		var b = $(this).data('iteration') || 1,
+			c = {
+				title: 'Product',
+				animateInside: !1,
+				position: 'topRight',
+				progressBar: !1,
+				timeout: 3200,
+				transitionIn: 'fadeInLeft',
+				transitionOut: 'fadeOut',
+				transitionInMobile: 'fadeIn',
+				transitionOutMobile: 'fadeOut'
+			};
+		switch (b) {
+			case 1:
+				$(this).addClass('active'), c.class = 'iziToast-info', c.message = '클립에 저장되었습니다.', c.icon = 'icon-bell';
+				break;
+			case 2:
+				$(this).removeClass('active'), c.class = 'iziToast-danger', c.message = '클립 저장이 해제되었습니다.', c.icon = 'icon-ban';
+		}
+		iziToast.show(c), b++, b > 2 && (b = 1), $(this).data('iteration', b);
+	});
+    </script>
+    {% endif %}
+    {% endfor %}
+{% endblock %}

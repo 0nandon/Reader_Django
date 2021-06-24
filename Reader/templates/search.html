@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block extra-style %}
+    <style>
+        .fa.fa-heart-o.active  {
+            color: #f00 !important;
+        }
+        button .fa.fa-heart-o.list  {
+            color: #888888 !important;
+        }
+    </style>
+{% endblock %}
+
+{% load static %}
+    
+{% block banner %}{% endblock %}
+
+{% block main %}
+<!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-6">
+              <div class="page-title">
+                <h2>검색결과</h2>
+              </div>
+            </div>
+            <div class="col-6">
+              <ol class="breadcrumb pull-right">
+                <li>
+                  <a href="{% url 'home' %}">홈</a>
+                </li>
+                <li>
+                  <a href="#">검색결과</a>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix productsContent">
+        <div class="container">
+          {% if books|length == 0 %}
+          <h3 style="padding-bottom:20px; color:#808080;">검색결과가 없습니다.</h3>
+          {% else %}
+          <h3 style="padding-bottom:20px; color:#808080;">총 {{ books|length }}개의 검색결과가 있습니다.</h3>
+          {% endif %}
+          <div class="row">
+            {% for book in books %}
+            <div class="col-lg-3 col-md-4 ">
+              <div class="productBox">
+                <div class="productImage clearfix">
+                  <img src="{{ book.image.url }}" style="border-radius:7px;" alt="products-img">
+                  <div class="productMasking">
+                    <ul class="list-inline btn-group" role="group">
+                      {% if not user.is_active %}
+                      <li><a class="btn btn-default" data-toggle="modal" data-target=".login-modal"><i class="fa fa-heart-o"></i></a></li>
+                      {% elif book in user.book_set.all %}
+                      <li><a id="wish_fade{{ book.key }}" class="btn btn-default"><div id="wish_div_fade{{ book.key }}"><i class="fa fa-heart-o active"></i></div></a></li>
+                      {% else %}
+                      <li><a id="wish_fade{{ book.key }}" class="btn btn-default"><div id="wish_div_fade{{ book.key }}"><i class="fa fa-heart-o"></i></div></a></li>
+                      {% endif %}
+                      <li><i class="fa fa-asterisk"></i></li>
+                      <li><a class="btn btn-default" data-toggle="modal" href="#book{{ book.key }}" ><i class="fa fa-eye"></i></a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="productCaption clearfix">
+                  <a href="single-product.html">
+                    <h5>{{ book.name }}</h5>
+                  </a>
+                  {% include "book/score.html" with score=book.score %} 
+                </div>
+              </div>
+            </div>
+            
+            <script src="https://code.jquery.com/jquery.min.js"></script>
+            <script type="text/javascript">
+                $(document).ready(function(){
+                    $('#wish_fade{{ book.key }}').click(function(){
+                        $.ajax({
+                            type: 'GET',
+                            url : "{% url 'book:book_wish' book.key %}",
+                            success: function(data){
+                                $('#wish_div_fade{{ book.key }}').html(data)
+                            }
+                         });
+                     });
+                 });
+            </script>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+
+    {% for book in books %}
+    {% if book in user.book_set.all %}
+    <script type="text/javascript">
+        $('#wish_fade{{ book.key }}').on('click', function() {
+		var b = $(this).data('iteration') || 1,
+			c = {
+				title: 'Product',
+				animateInside: !1,
+				position: 'topRight',
+				progressBar: !1,
+				timeout: 3200,
+				transitionIn: 'fadeInLeft',
+				transitionOut: 'fadeOut',
+				transitionInMobile: 'fadeIn',
+				transitionOutMobile: 'fadeOut'
+			};
+		switch (b) {
+			case 2:
+				$(this).addClass('active'), c.class = 'iziToast-info', c.message = '클립에 저장되었습니다.', c.icon = 'icon-bell';
+				break;
+			case 1:
+				$(this).removeClass('active'), c.class = 'iziToast-danger', c.message = '클립 저장이 해제되었습니다.', c.icon = 'icon-ban';
+		}
+		iziToast.show(c), b++, b > 2 && (b = 1), $(this).data('iteration', b);
+	});
+    </script>
+    {% else %}
+    <script type="text/javascript">
+        $('#wish_fade{{ book.key }}').on('click', function() {
+		var b = $(this).data('iteration') || 1,
+			c = {
+				title: 'Product',
+				animateInside: !1,
+				position: 'topRight',
+				progressBar: !1,
+				timeout: 3200,
+				transitionIn: 'fadeInLeft',
+				transitionOut: 'fadeOut',
+				transitionInMobile: 'fadeIn',
+				transitionOutMobile: 'fadeOut'
+			};
+		switch (b) {
+			case 1:
+				$(this).addClass('active'), c.class = 'iziToast-info', c.message = '클립에 저장되었습니다.', c.icon = 'icon-bell';
+				break;
+			case 2:
+				$(this).removeClass('active'), c.class = 'iziToast-danger', c.message = '클립 저장이 해제되었습니다.', c.icon = 'icon-ban';
+		}
+		iziToast.show(c), b++, b > 2 && (b = 1), $(this).data('iteration', b);
+	});
+    </script>
+    {% endif %}
+    {% endfor %}
+{% endblock %}
