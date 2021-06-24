@@ -1,0 +1,70 @@
+
+{% extends "base.html" %}
+
+{% block extra-style %}{% endblock %}
+
+{% block login %}<li class="nav-item dropdown active">{% endblock %}
+
+{% load widget_tweaks %}
+    
+{% block banner %}{% endblock %}
+
+{% block main %}
+<!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="page-title">
+                <h2>회원가입</h2>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <ol class="breadcrumb float-right">
+                <li>
+                  <a href="index.html">Pages</a>
+                </li>
+                <li class="active">회원가입</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix signUp">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading"><h3>회원가입</h3></div>
+                <div class="panel-body">
+                  {% if form_signup.errors %}
+                      <div class="alert alert-danger w-100" >
+                        <span style="font-size:12px;">{{ form_signup.errors }}</span>
+                      </div>
+                  {% endif %}
+                  <form action="." method="POST" role="form">{% csrf_token %}
+                    <div class="form-group">
+                      <label for="email">이메일</label>
+                      {% render_field form_signup.email class="form-control" %}
+                    </div>
+                    <div class="form-group">
+                      <label for="password1">비밀번호</label>
+                      {% render_field form_signup.password1 class="form-control" %}
+                    </div>
+                    <div class="form-group">
+                      <label for="">비밀번호 확인</label>
+                      {% render_field form_signup.password2 class="form-control" %}
+                    </div>
+                    <input type="submit" class="btn btn-primary btn-block" value="회원가입"/>
+                    <input type="hidden" name="next" value="{{ next }}"/>
+                    <button type="button" class="btn btn-link btn-block"><span>All have an account?</span> Log in</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+{% endblock %}
