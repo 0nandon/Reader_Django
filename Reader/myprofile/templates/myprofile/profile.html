@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% load static %}
+    
+{% load widget_tweaks %}
+
+{% block extra-style %}
+<style>
+    a {
+        color:#47bac1;
+    }
+    a:hover {
+        color:#008080; !important
+    }
+</style>
+{% endblock %}
+
+{% block profile %}<li class="nav-item dropdown active">{% endblock %}
+    
+{% block banner %}{% endblock %}
+    
+{% block main %}
+<!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="page-title">
+                <h2>나의 프로필</h2>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <ol class="breadcrumb float-right">
+                <li>
+                  <a href="{% url 'home' %}">홈</a>
+                </li>
+                <li class="active">프로필</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix userProfile">
+        <div class="container">
+          <div class="row">
+            <div class="col-12">
+              <div class="btn-group" role="group" aria-label="...">
+                <a href="{% url 'profile:profile' %}" class="btn btn-default active"><i class="fa fa-user" aria-hidden="true"></i>프로필</a>
+                <a href="{% url 'profile:room' %}" class="btn btn-default"><i class="fa fa-list" aria-hidden="true"></i>나의 독서방</a>
+                <a href="{% url 'profile:wishlist' %}" class="btn btn-default"><i class="fa fa-heart" aria-hidden="true"></i>좋아요</a>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="innerWrapper profile">
+                <div class="orderBox">
+                  <h2>프로필</h2>
+                </div>
+                <div class="row">
+                  <div class="col-md-4 col-lg-3 col-xl-2 col-12">
+                    <div class="thumbnail">
+                        {% if not user.image %}
+                        <img src="{% static 'assets/img/blog/avatar.jpg' %}" style="border-radius:7px;" alt="profile-image">
+                        {% else %}
+                        <img src="{{ user.image.url }}" style="border-radius:7px;" alt="profile-image">
+                        {% endif %}
+                    </div>
+                  </div>
+                  <div class="col-md-8 col-lg-9 col-xl-10 col-12">
+                      <form enctype="multipart/form-data" action="." method="POST" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                          <label for="" class="col-md-3 control-label">이메일</label>
+                          <div class="col-md-7">
+                            <input type="text" class="form-control" id="" placeholder="{{ user.email }}" disabled>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label for="" class="col-md-3 control-label">프로필 이미지</label>
+                          <div class="col-md-7">
+                            {% render_field form.image class="form-control" style="height:75px;" %}
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label for="" class="col-md-3 control-label">이름</label>
+                          <div class="col-md-9">
+                            {% render_field form.name class="form-control" %}
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label for="" class="col-md-3 control-label">소속</label>
+                          <div class="col-md-9">
+                            {% render_field form.sosok class="form-control" %}
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class=" col-md-12 ">
+                            <input type="submit" class="btn btn-primary float-right" value="저장하기"/>
+                          </div>
+                        </div>
+                      </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+{% endblock %}

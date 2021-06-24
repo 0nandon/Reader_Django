@@ -1,0 +1,50 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>책 제목</th>
+      <th>책 코드</th>
+      <th>태그</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if books|length == 0 %}
+    <p>좋아요를 누른 도서가 없습니다.</p>
+    {% else %}
+    {% for book in books %}
+    <tr>
+      <td class="">
+        <button type="button" id="delete{{ book.id }}" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </td>
+      <td>{{ book.name }}</td>
+      <td>{{ book.code }}</td>
+      <td>
+      {% load taggit_templatetags2_tags %}
+      {% get_tags_for_object book as "tags" %}
+      {% for tag in tags %}
+      #{{ tag.name }}&nbsp;
+      {% endfor %}
+      </td>
+      <td>
+        <a href="{{ book.get_absolute_url }}" class="btn btn-sm btn-secondary-outlined">자세히보기</a>
+      </td>
+    </tr>
+    <script src="https://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#delete{{ book.id }}').click(function(){
+                $.ajax({
+                    type: 'GET',
+                    url : "{% url 'profile:delete' book.id %}",
+                    success: function(data){
+                        $('.table-responsive').html(data)
+                    }
+                });
+            });
+        });
+    </script>
+    {% endfor %}
+    {% endif %}
+  </tbody>
+</table>

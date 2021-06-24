@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block extra-style %}{% endblock %}
+
+{% block profile %}<li class="nav-item dropdown active">{% endblock %}
+
+{% load static %}
+    
+{% block banner %}{% endblock %}
+    
+{% block main %}
+    <!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="page-title">
+                <h2>좋아요를 누른 책 리스트</h2>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <ol class="breadcrumb pull-right">
+                <li>
+                  <a href="{% url 'home' %}">홈</a>
+                </li>
+                <li class="active">좋아요를 누른 책 리스트</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix userProfile">
+        <div class="container">
+          <div class="row">
+            <div class="col-12">
+              <div class="btn-group" role="group" aria-label="...">
+                <a href="{% url 'profile:profile' %}" class="btn btn-default"><i class="fa fa-user" aria-hidden="true"></i>프로필</a>
+                <a href="{% url 'profile:room' %}" class="btn btn-default"><i class="fa fa-list" aria-hidden="true"></i>나의 독서방</a>
+                <a href="{% url 'profile:wishlist' %}" class="btn btn-default active"><i class="fa fa-heart" aria-hidden="true"></i>좋아요</a>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="innerWrapper">
+                <div class="orderBox myAddress wishList">
+                  <h2>좋아요를 누른 책 리스트</h2>
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th>책 제목</th>
+                          <th>책 코드</th>
+                          <th>태그</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% if books|length == 0 %}
+                        <p>좋아요를 누른 도서가 없습니다.</p>
+                        {% else %}
+                        {% for book in books %}
+                        <tr>
+                          <td class="">
+                            <button type="button" id="delete{{ book.id }}" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                          </td>
+                          <td>{{ book.name }}</td>
+                          <td>{{ book.code }}</td>
+                          <td>
+                          {% load taggit_templatetags2_tags %}
+                          {% get_tags_for_object book as "tags" %}
+                          {% for tag in tags %}
+                          #{{ tag.name }}&nbsp;
+                          {% endfor %}
+                          </td>
+                          <td>
+                            <a href="{{ book.get_absolute_url }}" class="btn btn-sm btn-secondary-outlined">자세히보기</a>
+                          </td>
+                        </tr>
+                        <script src="https://code.jquery.com/jquery.min.js"></script>
+                        <script type="text/javascript">
+                            $(document).ready(function(){
+                                $('#delete{{ book.id }}').click(function(){
+                                    $.ajax({
+                                        type: 'GET',
+                                        url : "{% url 'profile:delete' book.id %}",
+                                        success: function(data){
+                                            $('.table-responsive').html(data)
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+                        {% endfor %}
+                        {% endif %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+{% endblock %}
