@@ -1,0 +1,179 @@
+
+{% extends "book/book.html" %}
+
+{% load static %}
+
+{% block extra-style %}
+    <style>
+        .fa.fa-heart-o.active  {
+            color: #f00 !important;
+        }
+        button .fa.fa-heart-o.list  {
+            color: #888888 !important;
+        }
+        .productListSingle .media .media-body .btn-group .btn-default:focus {
+             border-radius: 0;
+             width: 35px;
+             height: 35px;
+             line-height: 33px !important;
+             padding: 0;
+             text-align: center;
+             margin-right: 7px;
+             border: 1px solid #d0d0d0;
+             background: transparent;
+             transition: all 0.3s ease-in-out;
+        }
+        .my.pagination > .active > a, 
+        .my.pagination > .active > span, 
+        .my.pagination > .active > a:hover, 
+        .my.pagination > .active > span:hover, 
+        .my.pagination > .active > a:focus, 
+        .my.pagination > .active > span:focus {
+            background: #47bac1;;
+            border-color: #47bac1;
+        }
+    </style>
+{% endblock %}
+
+{% block sub_category %}
+{% for sub_category in category.subcategory_set.all %}
+{% if sub_category.slug == slug_sub %}
+<li><a style="color:#47bac1;" href="{% url 'book:book_list' category.slug sub_category.slug page %}"><i class="fa fa-caret-right" aria-hidden="true"></i>{{ sub_category }}<span>
+    ({{ sub_category.book_set.count }})</span></a></li>
+{% else %}
+<li><a href="{% url 'book:book_list' category.slug sub_category.slug page %}"><i class="fa fa-caret-right" aria-hidden="true"></i>{{ sub_category }}<span>
+    ({{ sub_category.book_set.count }})</span></a></li>
+{% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block sort %}
+{% endblock %}
+
+{% block ajax %}
+{% endblock %}
+
+{% block grid %}
+<button type="button" class="btn btn-default" onclick="window.location.href='{% url 'book:room_list' slug_main slug_sub %}'"><i class="fa fa-th" aria-hidden="true"></i><span style="font-size:14px;">독서방</span></button>
+{% endblock %}
+{% block list %}
+<button type="button" class="btn btn-default active" onclick="window.location.href=''"><i class="fa fa-th-list" aria-hidden="true"></i><span>도서</span></button>
+{% endblock %}
+
+{% block item_list %}
+<div id="book_list">
+  <div class="row productListSingle">
+    {% with wish_list=user.book_set.all %}
+    {% for book in books %}
+    <div class="col-sm-12 ">
+      <div class="media flex-wrap productBox">
+        <div class="media-left">
+          <div class="productImage clearfix">
+            <img src="{{ book.image.url }}" style="border-radius:7px;" alt="products-img">
+              <div class="productMasking">
+                <ul class="list-inline btn-group" role="group">
+                  {% if not user.is_active %}
+                  <li><a class="btn btn-default" data-toggle="modal" data-target=".login-modal"><i class="fa fa-heart-o"></i></a></li>
+                  {% elif book in wish_list %}
+                  <li><a id="wish_fade{{ book.key }}" class="btn btn-default"><div id="wish_div_fade{{ book.key }}"><i class="fa fa-heart-o active"></i></div></a></li>
+                  {% else %}
+                  <li><a id="wish_fade{{ book.key }}" class="btn btn-default"><div id="wish_div_fade{{ book.key }}"><i class="fa fa-heart-o"></i></div></a></li>
+                  {% endif %}
+                  <li><i class="fa fa-asterisk"></i></li>
+                  <li><a class="btn btn-default" data-toggle="modal" href="#book{{ book.key }}" ><i class="fa fa-eye"></i></a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="media-body">
+            <h4 class="media-heading"><a href="{{ book.get_absolute_url }}">{{ book.name }}</a></h4>
+            <p>{{ book.explain }}
+            <br><br>
+            {% load taggit_templatetags2_tags %}
+            {% get_tags_for_object book as "tags" %}
+            <span style="color:#47bac1;">
+            {% for tag in tags %}
+            #{{ tag.name }}&nbsp;
+            {% endfor %}
+            </span>
+            </p>
+            <div class="btn-group" role="group">
+              {% if not user.is_active %}
+              <button type="button" class="btn btn-default" data-toggle="modal" data-target=".login-modal"><i class="fa fa-heart" aria-hidden="true"></i></button>
+              {% elif book in wish_list %}
+              <button id="wish{{ book.key }}" type="button" class="btn btn-default"><div id="wish_div{{ book.key }}"><i class="fa fa-heart-o active"></i></div></button>
+              {% else %}
+              <button id="wish{{ book.key }}" type="button" class="btn btn-default list"><div id="wish_div{{ book.key }}"><i class="fa fa-heart-o"></i></div></button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <script type="text/javascript">
+          $(document).ready(function(){
+              $('#wish{{ book.key }}, #wish_fade{{ book.key }}').click(function(){
+                  $.ajax({
+                      type: 'GET',
+                      url : "{% url 'book:book_wish' book.key %}",
+                      success: function(data){
+                          $('#wish_div{{ book.key }}').html(data)
+                          $('#wish_div_fade{{ book.key }}').html(data)
+                      }
+                  });
+              });
+          });
+      </script>
+    {% endfor %}
+    {% endwith %}
+  </div>
+</div>
+{% endblock %}
+
+{% block pagination %}
+{% if is_page %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center my">
+    {% if present_page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="{% url 'book:book_list' slug_main slug_sub present_page_obj.previous_page_number %}" aria-label="Previous">
+        <span style="color:#47bac1;">&laquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <a class="page-link" href="#" aria-label="Previous">
+        <span style="color:#808080;">&laquo;</span>
+      </a>
+    </li>
+    {% endif %}
+      
+    {% for idx in page_obj.page_range %}
+    {% if idx == present_page %}
+    <li class="page-item active">
+      <a class="page-link" href="{% url 'book:book_list' slug_main slug_sub idx %}">{{ idx }}</a>
+    </li>
+    {% else %}
+    <li class="page-item">
+      <a class="page-link" href="{% url 'book:book_list' slug_main slug_sub idx %}"><span style="color:#47bac1;">{{ idx }}</span></a>
+    </li>
+    {% endif %}
+    {% endfor %}
+      
+    {% if present_page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="{% url 'book:book_list' slug_main slug_sub present_page_obj.next_page_number %}" aria-label="Next">
+        <span style="color:#47bac1;">&raquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <a class="page-link" href="#" aria-label="Next">
+        <span style="color:#808080;">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+     
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

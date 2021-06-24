@@ -1,0 +1,227 @@
+
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block extra-style %}
+{% endblock %}
+
+{% block book %}<li class="nav-item active">{% endblock %}
+    
+{% block banner %}{% endblock %}
+
+{% block main %}
+<!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="page-title">
+                <h2>도서</h2>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <ol class="breadcrumb float-right">
+                <li>
+                  <a href="{% url 'home' %}">홈</a>
+                </li>
+                <li class="active">도서</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix productsContent">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-3 col-md-4 sideBar">
+              <div class="panel panel-default">
+                <div class="panel-heading">도서 분류</div>
+                <div class="panel-body">
+                  <div class="collapse navbar-collapse navbar-ex1-collapse navbar-side-collapse">
+                    <ul class="nav navbar-nav side-nav" id="accordion2" role="tablist" aria-multiselectable="true">
+                      {% for category in categories %}
+                      <li>
+                        <div class="" role="tab" id="heading{{ forloop.counter }}">
+                          {% if forloop.first %}
+                          <a href="javascript:;" data-toggle="collapse" aria-expanded="true" data-target="#{{ category }}" aria-controls="{{ category }}">                             {{ category }}<i class="fa fa-plus"></i></a>
+                          {% else %}
+                          <a href="javascript:;" data-toggle="collapse" aria-expanded="false" data-target="#{{ category }}" aria-controls="{{ category }}">                             {{ category }}<i class="fa fa-plus"></i></a>
+                          {% endif %}
+                        </div>
+                        
+                        {% if forloop.first %}
+                        <ul id="{{ category }}" class="collapse collapseItem show" role="tabpanel" aria-labelledby="heading{{ forloop.counter }}"
+                        data-parent="#accordion2">
+                        {% else %}
+                        <ul id="{{ category }}" class="collapse collapseItem" role="tabpanel" aria-labelledby="heading{{ forloop.counter }}" 
+                        data-parent="#accordion2">
+                        {% endif %}
+                          
+                          {% block sub_category %}
+                          {% for sub_category in category.subcategory_set.all %}
+                          {% if sub_category.slug == slug_sub %}
+                          <li><a style="color:#47bac1;" href="{% url 'book:room_list' category.slug sub_category.slug %}"><i class="fa fa-caret-right" aria-hidden="true"></i>{{ sub_category }}</a></li>
+                          {% else %}
+                          <li><a href="{% url 'book:room_list' category.slug sub_category.slug %}"><i class="fa fa-caret-right" aria-hidden="true"></i>{{ sub_category }}</a></li>
+                          {% endif %}
+                          {% endfor %}
+                          {% endblock %}
+                        </ul>
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-9 col-md-8">
+              <div class="row filterArea">
+                <div class="col-6">
+                  {% block sort %}
+                  <select name="guiest_id1" id="guiest_id1" class="select-drop">
+                    <option value="0">전체</option>
+                    <option value="1">인원 모집 중</option>
+                    <option value="2">마감 임박</option>
+                    <option value="3">마감</option>
+                  </select>
+                  <div class="btn-group">
+                    <button id="sort" type="submit" class="btn btn-default active"><i class="fa fa-sort" aria-hidden="true"></i><span>분류</span></button>                     </div>
+                  {% endblock %}
+                </div>
+                <!-- ajax -->
+                <script src="https://code.jquery.com/jquery.min.js"></script>
+                {% block ajax %}{% endblock %}
+                <div class="col-6">
+                  <div class="btn-group float-right" role="group">
+                    {% block grid %}
+                    <button type="button" class="btn btn-default active" onclick="window.location.href='product-grid-left-sidebar.html'"><i class="fa fa-th" aria-hidden="true"></i><span style="font-size:14px;">독서방</span></button>
+                    {% endblock %}
+                    {% block list %}
+                    <button type="button" class="btn btn-default" onclick="window.location.href='product-list-left-sidebar.html'"><i class="fa fa-th-list" aria-hidden="true"></i><span>도서</span></button>
+                    {% endblock %}
+                  </div>
+                </div>
+              </div>
+                
+              <!-- items -->
+              {% block item_list %}{% endblock %}
+              <!-- item end -->
+              {% block pagination %}{% endblock %}
+            </div>
+          </div>
+        </div>
+      </section>
+{% endblock %}
+    
+{% block extra-script %}
+    {% for room in rooms %}
+    {% if user.email in room.wish %}
+    <script type="text/javascript">
+        $('#wish{{ room.pk }}, #wish_fade{{ room.pk }}').on('click', function() {
+		var b = $(this).data('iteration') || 1,
+			c = {
+				title: 'Product',
+				animateInside: !1,
+				position: 'topRight',
+				progressBar: !1,
+				timeout: 3200,
+				transitionIn: 'fadeInLeft',
+				transitionOut: 'fadeOut',
+				transitionInMobile: 'fadeIn',
+				transitionOutMobile: 'fadeOut'
+			};
+		switch (b) {
+			case 2:
+				$(this).addClass('active'), c.class = 'iziToast-info', c.message = '클립에 저장되었습니다.', c.icon = 'icon-bell';
+				break;
+			case 1:
+				$(this).removeClass('active'), c.class = 'iziToast-danger', c.message = '클립 저장이 해제되었습니다.', c.icon = 'icon-ban';
+		}
+		iziToast.show(c), b++, b > 2 && (b = 1), $(this).data('iteration', b);
+	});
+    </script>
+    {% else %}
+    <script type="text/javascript">
+        $('#wish{{ room.pk }}, #wish_fade{{ room.pk }}').on('click', function() {
+		var b = $(this).data('iteration') || 1,
+			c = {
+				title: 'Product',
+				animateInside: !1,
+				position: 'topRight',
+				progressBar: !1,
+				timeout: 3200,
+				transitionIn: 'fadeInLeft',
+				transitionOut: 'fadeOut',
+				transitionInMobile: 'fadeIn',
+				transitionOutMobile: 'fadeOut'
+			};
+		switch (b) {
+			case 1:
+				$(this).addClass('active'), c.class = 'iziToast-info', c.message = '클립에 저장되었습니다.', c.icon = 'icon-bell';
+				break;
+			case 2:
+				$(this).removeClass('active'), c.class = 'iziToast-danger', c.message = '클립 저장이 해제되었습니다.', c.icon = 'icon-ban';
+		}
+		iziToast.show(c), b++, b > 2 && (b = 1), $(this).data('iteration', b);
+	});
+    </script>
+    {% endif %}
+    {% endfor %}
+    
+    {% for book in books %}
+    {% if book in user.book_set.all %}
+    <script type="text/javascript">
+        $('#wish{{ book.key }}, #wish_fade{{ book.key }}').on('click', function() {
+		var b = $(this).data('iteration') || 1,
+			c = {
+				title: 'Product',
+				animateInside: !1,
+				position: 'topRight',
+				progressBar: !1,
+				timeout: 3200,
+				transitionIn: 'fadeInLeft',
+				transitionOut: 'fadeOut',
+				transitionInMobile: 'fadeIn',
+				transitionOutMobile: 'fadeOut'
+			};
+		switch (b) {
+			case 2:
+				$(this).addClass('active'), c.class = 'iziToast-info', c.message = '클립에 저장되었습니다.', c.icon = 'icon-bell';
+				break;
+			case 1:
+				$(this).removeClass('active'), c.class = 'iziToast-danger', c.message = '클립 저장이 해제되었습니다.', c.icon = 'icon-ban';
+		}
+		iziToast.show(c), b++, b > 2 && (b = 1), $(this).data('iteration', b);
+	});
+    </script>
+    {% else %}
+    <script type="text/javascript">
+        $('#wish{{ book.key }}, #wish_fade{{ book.key }}').on('click', function() {
+		var b = $(this).data('iteration') || 1,
+			c = {
+				title: 'Product',
+				animateInside: !1,
+				position: 'topRight',
+				progressBar: !1,
+				timeout: 3200,
+				transitionIn: 'fadeInLeft',
+				transitionOut: 'fadeOut',
+				transitionInMobile: 'fadeIn',
+				transitionOutMobile: 'fadeOut'
+			};
+		switch (b) {
+			case 1:
+				$(this).addClass('active'), c.class = 'iziToast-info', c.message = '클립에 저장되었습니다.', c.icon = 'icon-bell';
+				break;
+			case 2:
+				$(this).removeClass('active'), c.class = 'iziToast-danger', c.message = '클립 저장이 해제되었습니다.', c.icon = 'icon-ban';
+		}
+		iziToast.show(c), b++, b > 2 && (b = 1), $(this).data('iteration', b);
+	});
+    </script>
+    {% endif %}
+    {% endfor %}
+{% endblock %}

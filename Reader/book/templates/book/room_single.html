@@ -1,0 +1,561 @@
+
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block book %}<li class="nav-item active">{% endblock %}
+
+{% block extra-style %}
+    <style>
+        #change_review {
+            color:#47bac1; !important
+        }
+        #change_review:hover {
+            color:#008080; !important
+        }
+        #update_progress_href {
+            color:#a0a0a0; !important
+        }
+        #update_progress_href:hover {
+            color:#47bac1; !important
+        }
+    </style>
+{% endblock %}
+    
+{% block banner %}{% endblock %}
+
+{% block main %}
+<!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="page-title">
+                <h2>{{ room.subject }}</h2>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <ol class="breadcrumb pull-right">
+                <li>
+                  <a href="#">독서방</a>
+                </li>
+                <li class="active">{{ room.subject }}</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix">
+        <div class="container">
+          <div class="row singleProduct">
+            <div class="col-md-12">
+              <div class="media flex-wrap mb-5">
+                <div class="media-left productSlider">
+                  <div id="carousel" data-ride="carousel">
+                    <div class="carousel-inner SingleProductItem">
+                      <div class="video-icon">
+                        <a class="video-link" data-fancybox href="https://www.youtube.com/embed/g3-VxLQO7do?autoplay=1">
+                          <i class="fa fa-play play-icon" aria-hidden="true"></i>
+                        </a>
+                      </div>
+
+                      <div class="carousel-item active productImage SingleProductImage" data-thumb="0">
+                        <img src="{{ room.image }}">
+                        <a data-fancybox="images" href="{{ item.image.url }}" class="product-content">
+                          <div class="MaskingIcon"><i class="fa fa-plus"></i></div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="media-body">
+                  <ul class="list-inline">
+                    <li class="mb-4 mb-md-0">
+                      <a href="#" onclick="window.history.back()"><i class="fa fa-reply" aria-hidden="true"></i>
+                        돌아가기
+                      </a>
+                    </li>
+
+                    <li class="share-all mr-0">
+                      <a class="social-link" href="javascript:void(0)"><i class="fa fa-plus" aria-hidden="true"></i>
+                          공유하기
+                      </a>
+
+                      <span class="all-link">
+                        <a class="SingleSocialIcon" href="javascript:void(0)">
+                          <i class="fa fa-facebook" aria-hidden="true"></i>
+                        </a>
+
+                        <a class="SingleSocialIcon" href="javascript:void(0)">
+                          <i class="fa fa-twitter" aria-hidden="true"></i>
+                        </a>
+
+                        <a class="SingleSocialIcon" href="javascript:void(0)">
+                          <i class="fa fa-instagram" aria-hidden="true"></i>
+                        </a>
+
+                        <a class="SingleSocialIcon" href="javascript:void(0)">
+                          <i class="fa fa-google-plus" aria-hidden="true"></i>
+                        </a>
+                      </span>
+                    </li>
+                  </ul>
+
+                  <h2>{{ room.subject }}</h2>
+                  {% if room.d_day > 0 %}
+                  <h4>목표일까지 {{ room.d_day }}일 남았습니다.</h4>
+                  {% else %}
+                  <h4>목표일이 지났습니다.</h4>
+                  {% endif %}
+                  <p>{{ room.explain }}<br><br>
+                  <span style="color:#47bac1;">
+                  {% for tag in room.tags %}
+                  #{{ tag }}&nbsp;
+                  {% endfor %}
+                  </span>
+                  </p>
+
+                  <span style="font-size:15px; color:#47bac1;">
+                      <i class="fa fa-angle-right"></i>&nbsp;&nbsp;지금까지 {{ page }}페이지를 읽었습니다.
+                      &nbsp;&nbsp;<a href="#update_progress" id="update_progress_href" data-toggle="modal"><i class="fa fa-plus" style="font-size:12px;">&nbsp;&nbsp;수정하기</i></a>
+                  </span>
+                  <div class="progress bordered" style="margin-bottom:10px; margin-top:5px; height:32px;">
+		            <div class="progress-bar progress-bar-striped progress-bar-animated" id="user_progress" role="progressbar" style="width: 30%; height:20px;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">&nbsp;&nbsp;{{ percentage }}</div>
+	              </div>
+                  <span style="font-size:15px; color:#FFB548;"><i class="fa fa-angle-right"></i>&nbsp;&nbsp;목표 진행률</span>
+                  <div class="progress bordered" style="margin-bottom:10px; margin-top:5px; height:32px;">
+		            <div class="progress-bar progress-bar-striped bg-warning progress-bar-animated" id="user_deadline" role="progressbar" style="width: 45%; height:20px;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">&nbsp;&nbsp;{{ deadline }}</div>
+	              </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <script src="https://code.jquery.com/jquery.min.js"></script>
+          <div class="row singleProduct singleProductTab">
+            <div class="col-12">
+              <div class="media mb-4">
+                <div class="media-body">
+                  <div class="tabArea">
+                    <ul class="nav nav-tabs bar-tabs">
+                      <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#Comments">대화</a></li>
+                      <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Progress">진행률</a></li>
+                      <li class="nav-item"><a class="nav-link" data-toggle="tab" href="" style="pointer-events:none;"></a></li>
+                      <li class="nav-item"><a class="nav-link" data-toggle="tab" href="" style="pointer-events:none;"></a></li>
+                    </ul>
+                    <div class="tab-content">
+                      <div id="Comments" class="tab-pane fade show active">
+                        <div class="commentsArea">
+                          {% if comments_num == 0 %}
+                          <span style="font-size:15px;">아직 달린 말주머니가 없습니다.</span><br><br><br>
+                          {% else %}
+                          <h3>{{ comments_num }}개의 말주머니가 달렸습니다.</h3>
+                          {% for comment in comments %}
+                          <div class="media flex-wrap">
+                            <a class="media-left" href="#">
+                              {% if not comment.get_user.image %}
+                              <img class="media-object" src="{% static 'assets/img/blog/avatar.jpg' %}" alt="Image">
+                              {% else %}
+                              <img class="media-object" style="width:70px; height:70px;" src="{{ comment.get_user.image.url }}" alt="Image">
+                              {% endif %}
+                            </a>
+                            <div class="media-body">
+                              {% if comment.user == room.leader %}
+                              <h4 class="media-heading">{{ comment.user }}&nbsp;<span style="color:#47bac1;">방장</span></h4>
+                              {% else %}
+                              <h4 class="media-heading">{{ comment.user }}</h4>
+                              {% endif %}
+                              <h4>
+                                <span><i class="fa fa-calendar" aria-hidden="true"></i>{{ comment.create }}</span>
+                              </h4>
+                              {% if comment.user == user.email %}
+                                <a id="change_review" href="#update_modal{{ comment.doc_id }}" data-toggle="modal">수정</a>
+                                <a id="change_review" href="#delete_comment{{ comment.doc_id }}" data-toggle="modal">삭제</a>
+                              {% endif %}
+                              <p>{{ comment.contents }}</p>
+                              <a class="btn btn-link" href="#sub_comment{{ comment.doc_id }}" data-toggle="modal">답변 달기</a>
+                              
+                              {% for sub in comment.get_sub %}
+                              <div class="media flex-wrap">
+                                <a class="media-left" href="#">
+                                  {% if not sub.get_user.image %}
+                                  <img class="media-object" src="{% static 'assets/img/blog/avatar.jpg' %}" alt="Image">
+                                  {% else %}
+                                  <img class="media-object" style="width:60px; height:60px;" src="{{ sub.get_user.image.url }}" alt="Image">
+                                  {% endif %}
+                                </a>
+                                <div class="media-body">
+                                  {% if sub.user == room.leader %}
+                                  <h4 class="media-heading">{{ sub.user }}&nbsp;<span style="color:#47bac1;">방장</span></h4>  
+                                  {% else %}
+                                  <h4 class="media-heading">{{ sub.user }}</h4>
+                                  {% endif %}
+                                  <h4>
+                                    <span><i class="fa fa-calendar" aria-hidden="true"></i>{{ sub.create }}</span>
+                                  </h4>
+                                  {% if sub.user == user.email %}
+                                    <a id="change_review" href="#update_modal{{ sub.doc_id }}" data-toggle="modal">수정</a>
+                                    <a id="change_review" href="#delete_comment{{ sub.doc_id }}" data-toggle="modal">삭제</a>
+                                  {% endif %}
+                                  <p>{{ sub.contents }}</p>
+                                </div>
+                              </div>
+                              <!-- 리뷰 삭제 모달 -->
+                              <div class="modal fade" id="delete_comment{{ sub.doc_id }}" tabindex="-1" role="dialog">
+			                    <div class="modal-dialog">
+				                  <div class="modal-content">
+					                <div class="modal-header justify-content-center">
+						              <h3 class="modal-title">삭제하기</h3>
+						              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					                </div>
+					                <div class="modal-body">
+                                      <span style="font-size:15px;">정말 삭제하시겠습니까?</span>
+                                      <br><br>
+                                      <button class="btn btn-primary float-right" data-dismiss="modal" style="margin-left:5px;">아니오</button>
+                                      <button id="yes{{ sub.doc_id }}" class="btn btn-primary float-right">예</button>
+					                </div>
+				                  </div>
+		                     	</div>
+		                      </div>
+                              
+                              <!-- 리뷰 수정 모달 -->
+                              <div class="modal fade quick-view" id="update_modal{{ sub.doc_id }}" tabindex="-1" role="dialog">
+			                    <div class="modal-dialog">
+				                  <div class="modal-content">
+					                <div class="modal-header justify-content-center">
+						              <h3 class="modal-title">수정하기</h3>
+						              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					                </div>
+					                <div class="modal-body">
+                                      <div class="commentsForm">
+                                        <h3>수정하기</h3>
+						                <div class="form-group">
+							              <textarea class="form-control" id="contents_update{{ sub.doc_id }}" rows="3" placeholder="이곳에 답변을 적어주세요.">{{ sub.contents }}</textarea>
+						                </div>
+                                      </div>
+                                      <input id="update{{ sub.doc_id }}" type="submit" class="btn btn-primary btn-block" value="답변 달기">
+					                </div>
+				                  </div>
+			                    </div>
+		                      </div>
+                              <script>
+                                  $(document).ready(function(){
+                                      $('#update{{ sub.doc_id }}').click(function(){
+                                          var contents = $('#contents_update{{ sub.doc_id }}').val()
+            
+                                          $.ajax({
+                                              type: 'POST',
+                                              url : "{% url 'book:comment_update' comment.doc_id sub.doc_id %}",
+                                              data: {'contents':contents},
+                                              success: function(data){
+                                              }
+                                          });
+                                          location.reload();
+                                      });
+                                  });
+                                  
+                                  $(document).ready(function(){
+                                      $('#yes{{ sub.doc_id }}').click(function(){
+      
+                                          $.ajax({
+                                              url : "{% url 'book:comment_delete' comment.doc_id sub.doc_id %}",
+                                              success: function(data){
+                                              }
+                                          });
+                                          location.reload();
+                                      });
+                                  });
+                              </script>
+                              {% endfor %}
+                            </div>
+                          </div>
+                          {% endfor %}
+                          {% endif %}
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="commentsForm">
+                              <h3>대화 이어나가기</h3>
+                              <div class="row">
+                                <div class="col-md-12">
+                                  <div class="form-group">
+                                    <textarea id="contents" class="form-control" rows="3" placeholder="이곳에 논의하고 싶은 내용을 적어주세요."></textarea>
+                                  </div>
+                                </div>
+                              </div>
+                              <button id="submit" class="btn btn-primary">올리기</button>
+                              <script type="text/javascript">
+                                $(document).ready(function(){
+                                    $('#submit').click(function(){
+                                        var contents = $('#contents').val()
+                                                    
+                                        $.ajax({
+                                            type: 'POST',
+                                            url : "{% url 'book:room_add_comment' doc_id %}",
+                                            data: {'contents':contents},
+                                            success: function(data){
+                                            }
+                                            
+                                        });
+                                        location.reload();
+                                    });
+                                });
+                              </script>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                        
+                      <!-- 진행률 -->
+                      <div id="Progress" class="tab-pane fade">
+                        {% for pair in progress %}
+                        <div class="media mb-5">
+                          {% if pair.user.image  %}
+                          <img class="mr-4" src="{{ pair.user.image.url }}" style="width:70px; height:70px; border-radius:100%;" alt="Generic placeholder image">
+                          {% else %}
+                          <img class="mr-4 rounded rounded-circle" src="{% static 'img/profile.jpg' %}" alt="Generic placeholder image">
+                          {% endif %}
+                          <div class="media-body">
+                            <h4 class="mt-0 mb-2">{{ pair.user.email }}</h4>
+                            <span><i class="fa fa-angle-right"></i>&nbsp;진행률</span>
+                            <div class="progress bordered" style="margin-bottom:10px; margin-top:5px; height:32px;">
+		                      <div class="progress-bar progress-bar-striped progress-bar-animated" id="user_progress{{ forloop.counter0 }}" role="progressbar" style="width: 0%; height:20px;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">&nbsp;&nbsp;{{ pair.percentage }}</div>
+	                        </div>
+                          </div>
+                        </div>
+                        {% if pair.percentage == '0%' %}
+                        <script>
+                            $('#user_progress{{ forloop.counter0 }}').css('width', '3%')
+                        </script>
+                        {% else %}
+                        <script>
+                            $('#user_progress{{ forloop.counter0 }}').css('width', '{{ pair.percentage }}')
+                        </script>
+                        {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    
+      {% for comment in comments %}
+      <!-- 댓글 달기 모달 -->
+      <div class="modal fade quick-view" id="sub_comment{{ comment.doc_id }}" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header justify-content-center">
+						<h3 class="modal-title">답변하기</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">
+                        <div class="commentsForm">
+                            <h3>답변 달기</h3>
+						    <div class="form-group">
+							    <textarea class="form-control" id="contents{{ comment.doc_id }}" rows="3" placeholder="이곳에 답변을 적어주세요."></textarea>
+						    </div>
+                        </div>
+                        <input id="submit{{ comment.doc_id }}" type="submit" class="btn btn-primary btn-block" value="답변 달기">
+					</div>
+				</div>
+			</div>
+		</div>
+        
+        <!-- 리뷰 수정 모달 -->
+        <div class="modal fade quick-view" id="update_modal{{ comment.doc_id }}" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header justify-content-center">
+						<h3 class="modal-title">수정하기</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">
+                        <div class="commentsForm">
+                            <h3>수정하기</h3>
+						    <div class="form-group">
+							    <textarea class="form-control" id="contents_update{{ comment.doc_id }}" rows="3" placeholder="이곳에 답변을 적어주세요.">{{ comment.contents }}</textarea>
+						    </div>
+                        </div>
+                        <input id="update{{ comment.doc_id }}" type="submit" class="btn btn-primary btn-block" value="답변 달기">
+					</div>
+				</div>
+			</div>
+		</div>
+        
+        <!-- 리뷰 삭제 모달 -->
+        <div class="modal fade" id="delete_comment{{ comment.doc_id }}" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header justify-content-center">
+						<h3 class="modal-title">삭제하기</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">
+                        <span style="font-size:15px;">정말 삭제하시겠습니까?</span>
+                        <br><br>
+                        <button class="btn btn-primary float-right" data-dismiss="modal" style="margin-left:5px;">아니오</button>
+                        <button id="yes{{ comment.doc_id }}" class="btn btn-primary float-right">예</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('#submit{{ comment.doc_id }}').click(function(){
+                    var contents = $('#contents{{ comment.doc_id }}').val()
+            
+                    $.ajax({
+                        type: 'POST',
+                        url : "{% url 'book:room_add_comment' comment.doc_id %}",
+                        data: {'contents':contents},
+                        success: function(data){
+                        }
+                    });
+                    location.reload();
+                });
+            });
+            
+            $(document).ready(function(){
+                $('#update{{ comment.doc_id }}').click(function(){
+                    var contents = $('#contents_update{{ comment.doc_id }}').val()
+            
+                    $.ajax({
+                        type: 'POST',
+                        url : "{% url 'book:comment_update' doc_id comment.doc_id %}",
+                        data: {'contents':contents},
+                        success: function(data){
+                        }
+                    });
+                    location.reload();
+                });
+            });
+            
+            $(document).ready(function(){
+                $('#yes{{ comment.doc_id }}').click(function(){
+      
+                    $.ajax({
+                        url : "{% url 'book:comment_delete' doc_id comment.doc_id %}",
+                        success: function(data){
+                        }
+                    });
+                    location.reload();
+                });
+            });
+        </script>
+        {% endfor %}
+        
+        <!-- 진행률 수정 모달 -->
+        <div class="modal fade" id="update_progress" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header justify-content-center">
+						<h3 class="modal-title">진행률 올리기</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">
+                        <span style="font-size:15px; color:#47bac1;">
+                            <i class="fa fa-angle-right"></i>&nbsp;&nbsp;현재 진행률
+                        </span>
+                        <div class="progress bordered" style="margin-bottom:10px; margin-top:5px; height:32px;">
+		                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="user_progress_modal" role="progressbar" style="width: 30%; height:20px;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"> &nbsp;&nbsp;{{ percentage }}</div>
+	                    </div>
+                        <div class="d-flex align-items-center mb-5 pt-3">
+                            <span id="quantity" style="color:#47bac1; font-size:16px;">지금까지&nbsp;&nbsp;</span>
+                            <div class="SingleCartListInner cartListInner pl-1">
+                                <form action="#">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr class="border-0">
+                                                    <td class="count-input border-0 p-0">
+                                                        <a class="incr-btn" id="decrease" data-action="decrease" href="#"><i class="fa fa-minus"></i></a>
+                                                        <input class="quantity" type="text" id="progress_val" value="{{ page }}">
+                                                        <a class="incr-btn" id="increase" data-action="increase" href="#"><i class="fa fa-plus"></i></a>
+                                                        &nbsp;&nbsp;<span id="quantity" style="color:#47bac1;">쪽 읽었습니다.</span>
+                                                    </td>
+                                                </tr>
+                                             </tbody>
+                                         </table>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <button id="update_progress_modal" class="btn btn-primary float-right">올리기</button>
+				    </div>
+				</div>
+			</div>
+		</div>
+        {% if percentage == '0%' %}
+        <script>
+            $('#user_progress_modal').css('width', '7%')
+            $('#user_progress').css('width', '5%')
+            $('#user_deadline').css('width', '5%')
+        </script>
+        {% else %}
+        <script>
+            $('#user_progress_modal, #user_progress').css('width', '{{ percentage }}')
+            $('#user_deadline').css('width', '{{ deadline }}')
+        </script>
+        {% endif %}
+        
+        <script>
+            $(document).ready(function(){
+                $('#update_progress_modal').click(function(){
+                    var page = $('#progress_val').val()
+      
+                    $.ajax({
+                        type: 'POST',
+                        url : "{% url 'book:update_progress' slug doc_id %}",
+                        data: {'page':page},
+                        success: function(data){
+                        }
+                    });
+                    location.reload();
+                });
+            });
+        </script>
+{% endblock %}
+
+<!-- ajax에서의 POST 통신을 위해 csrf 토큰을 넘겨줌 -->
+{% block extra-script %}
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            
+            return cookieValue;
+        }
+
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+    
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    </script>
+{% endblock %}

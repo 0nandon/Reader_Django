@@ -1,0 +1,467 @@
+
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block book %}<li class="nav-item active">{% endblock %}
+    
+{% block extra-style %}
+    <style>
+        #change_review {
+            color:#47bac1; !important
+        }
+        #change_review:hover {
+            color:#008080; !important
+        }
+    </style>
+{% endblock %}
+    
+{% block banner %}{% endblock %}
+    
+{% block main %}
+      <!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="page-title">
+                {% if is_related %}
+                <h2>{{ book.key }}</h2>
+                {% else %}
+                <h2>{{ book.name }}</h2>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <ol class="breadcrumb pull-right">
+                <li>
+                  <a href="index.html">Book</a>
+                </li>
+                {% if is_related %}
+                <li class="active">{{ book.key }}</li>
+                {% else %}
+                <li class="active">{{ book.key }}</li>
+                {% endif %}
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix">
+        <div class="container">
+          <div class="row singleProduct">
+            <div class="col-md-12">
+              <div class="media flex-wrap mb-5">
+                <div class="media-left productSlider">
+                  <div id="carousel" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner SingleProductItem">
+                      <div class="video-icon">
+                        <a class="video-link" data-fancybox href="https://www.youtube.com/embed/g3-VxLQO7do?autoplay=1">
+                          <i class="fa fa-play play-icon" aria-hidden="true"></i>
+                        </a>
+                      </div>
+
+                      <div class="carousel-item active productImage SingleProductImage" data-thumb="0">
+                        <img src="{{ book.image.url }}">
+                        <a data-fancybox="images" href="{{ item.image.url }}" class="product-content">
+                          <div class="MaskingIcon"><i class="fa fa-plus"></i></div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="media-body">
+                  <ul class="list-inline">
+                    <li class="mb-4 mb-md-0">
+                      <a href="#" onclick="window.history.back()"><i class="fa fa-reply" aria-hidden="true"></i>
+                        돌아가기
+                      </a>
+                    </li>
+
+                    <li class="share-all mr-0">
+                      <a class="social-link" href="javascript:void(0)"><i class="fa fa-plus" aria-hidden="true"></i>
+                          공유하기
+                      </a>
+
+                      <span class="all-link">
+                        <a class="SingleSocialIcon" href="javascript:void(0)">
+                          <i class="fa fa-facebook" aria-hidden="true"></i>
+                        </a>
+
+                        <a class="SingleSocialIcon" href="javascript:void(0)">
+                          <i class="fa fa-twitter" aria-hidden="true"></i>
+                        </a>
+
+                        <a class="SingleSocialIcon" href="javascript:void(0)">
+                          <i class="fa fa-instagram" aria-hidden="true"></i>
+                        </a>
+
+                        <a class="SingleSocialIcon" href="javascript:void(0)">
+                          <i class="fa fa-google-plus" aria-hidden="true"></i>
+                        </a>
+                      </span>
+                    </li>
+                  </ul>
+
+                  <h2>{{ book.name }}</h2>
+                  {% include "book/score.html" with score=book.score %}
+                  <h3>{{ book.code }},&nbsp;<span style="font-size:14px;">{{ book.page }}p</span></h3>
+                  <p>
+                  {{ book.explain }}<br><br>
+                  {% load taggit_templatetags2_tags %}
+                  {% get_tags_for_object book as "tags" %}
+                  <span style="color:#47bac1;">
+                  {% for tag in tags %}
+                  #{{ tag.name }}&nbsp;
+                  {% endfor %}
+                  </span><br><br>
+                  {{ book.author }} | {{ book.publication }} 출판({{ book.publication_date }})
+                  </p>
+                 
+                  <div class="btn-area mb-0">
+                    <a href="#create_room" class="btn btn-primary btn-default" data-toggle="modal">독서방 만들기<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row singleProduct singleProductTab">
+            <div class="col-12">
+              <div class="media mb-4">
+                <div class="media-body">
+                  <div class="tabArea">
+                    <ul class="nav nav-tabs bar-tabs">
+                      <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#Reviews">리뷰</a></li>
+                      <li class="nav-item"><a class="nav-link" data-toggle="tab" href="" style="pointer-events:none;"></a></li>
+                      <li class="nav-item"><a class="nav-link" data-toggle="tab" href="" style="pointer-events:none;"></a></li>
+                      <li class="nav-item"><a class="nav-link" data-toggle="tab" href="" style="pointer-events:none;"></a></li>
+                    </ul>
+                    <div class="tab-content">
+                      <div id="Reviews" class="tab-pane fade show active">
+                        {% if book.review_set.count == 0 %}
+                        <div class="media mb-5">
+                            <h4><p class="mt-0 mb-2">아직 등록된 리뷰가 없습니다.</p></h4>
+                        </div>
+                        {% endif %}
+                        
+                        {% with book.review_set.all as review_for %}
+                        {% for review in review_for %}
+                        <div class="media mb-5">
+                          {% if not review.owner.image %}
+                          <img class="mr-4 rounded rounded-circle" src="{% static 'img/profile.jpg' %}" alt="Generic placeholder image">
+                          {% else %}
+                          <img class="mr-4" style="width:70px; height:70px; border-radius:100%;" src="{{ review.owner.image.url }}" alt="Generic placeholder image">
+                          {% endif %}
+                          <div class="media-body">
+                            <h4 class="mt-0 mb-2">{{ review.subject }}</h4>
+                            {% if review.owner == user %}
+                            <a id="change_review" href="#update_review{{ review.id }}" data-toggle="modal">수정</a>&nbsp;&nbsp;
+                            <a id="change_review" href="#delete_review{{ review.id }}" data-toggle="modal">삭제</a>
+                            {% endif %}
+                              
+                            {% include "book/score.html" with score=review.score %}
+                            <span style="font-size:11px;">{{ review.create_dt|date:"Y-m-d" }}</span>
+                            
+                            <p class="mt-0 mb-2">{{ review.explain }}</p>
+                            <h6 class="mt-0"><em>{{ review.owner.email }}</em></h6>
+                          </div>
+                        </div>
+                        {% endfor %}
+
+                        <div class="mt-5 mb-2 border p-4 p-md-5">
+                          <form>
+                            <div class="media flex-column flex-md-row mb-0">
+                              {% if user.is_active and user.image %}
+                              <img class="m-auto m-md-0 mr-md-4" style="width:70px; height:70px; border-radius:100%;" src="{{ user.image.url }}" alt="Generic placeholder image">
+                              {% else %}
+                              <img class="m-auto m-md-0 mr-md-4 rounded rounded-circle" src="{% static 'img/profile.jpg' %}" alt="Generic placeholder image">
+                              {% endif %}
+                              
+                              <div class="media-body mt-4 mt-md-0">
+                                {% if user.is_active %}
+                                <h6 class="text-center text-md-left text-capitalize mt-0"><em>{{ user.email }}</em></h6>
+                                <h6 class="text-center text-md-left ReviewsPost mt-0">Posting publicly</h6>
+                                {% else %}
+                                <h6 class="text-center text-md-left text-capitalize mt-0"><em>로그인한 사용자만 리뷰를 등록할 수 있습니다.</em></h6>
+                                {% endif %}
+                            
+                                <div id="rating" class="rating-view mb-4">
+                                  <span class="add-rating-large pl-0 m-auto m-md-0"></span>
+                                </div>
+
+                                <div class="row">
+                                  <div class="form-group col-md-12">
+                                    <input type="text" class="form-control" id="subject" placeholder="주제를 입력해주세요." required="">
+                                  </div>
+
+                                  <div class="form-group col-md-12">
+                                    <textarea class="form-control" id="explain" rows="5" placeholder="리뷰를 적어주세요."></textarea>
+                                  </div>
+                                </div>
+                                
+                                {% if user.is_active %}
+                                <div class="text-center text-md-left">
+                                  <button id="rating-button" class="btn btn-default btn-primary custom-btn">리뷰 올리기</button>
+                                </div>
+                                <script src="https://code.jquery.com/jquery.min.js"></script>
+                                <script type="text/javascript">
+                                    $(document).ready(function(){
+                                        $('#rating-button').click(function(){
+                                            var subject = $('#subject').val()
+                                            var explain = $('#explain').val()
+                                            var rating = $('.jq-ry-rated-group').css("width")
+            
+                                            $.ajax({
+                                                type: 'POST',
+                                                url : "{% url 'book:book_review' book.slug %}",
+                                                data: {'rating':rating, 'subject':subject, 'explain':explain},
+                                                success: function(data){
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+                                {% else %}
+                                <div class="text-center text-md-left">
+                                  <button id="rating-button" class="btn btn-default btn-primary custom-btn" data-toggle="modal" data-target=".login-modal">리뷰 올리기</button>
+                                </div>
+                                {% endif %}
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% if is_related %}
+          <div class="page-header">
+            <h4>연관 도서</h4>
+          </div>
+          <div class="row productsContent">
+            
+            {% for related in related_books %}
+            <div class="col-md-3 col-12 ">
+              <div class="productBox">
+                <div class="productImage clearfix">
+                  <img src="{{ related.image.url }}" style="border-radius:7px;" alt="products-img">
+                  <div class="productMasking">
+                    <ul class="list-inline btn-group" role="group">
+                      <li><a class="btn btn-default" href="{{ related.get_absolute_url }}"><i class="fa fa-eye"></i></a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="productCaption clearfix">
+                 <h5>{{ related.name }}</h5>
+                 {% include "book/score.html" with score=related.score %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </section>
+    
+    <!-- 방 만들기 -->
+    <div class="modal fade quick-view" id="create_room" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header justify-content-center">
+					<h3 class="modal-title">독서방 만들기</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+                        <label for="room_subject">방 제목</label>
+						<input type="text" class="form-control" id="room_subject" value="" placeholder="방 제목을 적어주세요." required="">
+					</div>
+					<div class="form-group">
+                        <label for="room_explain">방 설명</label>
+						<textarea class="form-control" id="room_explain" rows="5" placeholder="방 설명을 적어주세요."></textarea>
+					</div>
+                    <div class="form-group">
+                        <label for="room_tag">태그</label>
+						<input type="text" class="form-control" id="room_tag" value="" placeholder="방을 설명할 수 있는 대표적인 단어들로 태그를 달아주세요." required="">
+					</div>
+                    <div class="d-flex align-items-center mb-5 pt-3">
+                        <span id="quantity" style="color:#47bac1; font-size:16px;">최대&nbsp;&nbsp;</span>
+                        <div class="SingleCartListInner cartListInner pl-1">
+                            <form action="#">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr class="border-0">
+                                                <td class="count-input border-0 p-0">
+                                                    <a class="incr-btn" id="decrease" data-action="decrease" href="#"><i class="fa fa-minus"></i></a>
+                                                    <input class="quantity" type="text" id="room_member" value="1">
+                                                    <a class="incr-btn" id="increase" data-action="increase" href="#"><i class="fa fa-plus"></i></a>
+                                                    &nbsp;&nbsp;<span id="quantity" style="color:#47bac1;">몇 명까지 방에 참여할 수 있습니다.</span>
+                                                </td>
+                                             </tr>
+                                         </tbody>
+                                    </table>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <span>
+                    <label for="due_date">방 참가인원 모집 마감일을 정해주세요.</label>
+                    <input type="date" id="due_date" class="form-control" value="{{ today }}" min="{{ today }}" style="width:50%">
+                    <label for="dead_date">방 목표일을 정해주세요.</label>
+                    <input type="date" id="dead_date" class="form-control" value="{{ today }}" min="{{ today }}" style="width:50%">
+                    </span>
+                    <input id="make_room" type="submit" class="btn btn-primary btn-block" value="방 만들기">
+				</div>
+			</div>
+		</div>
+	</div>
+    
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#make_room').click(function(){
+                var subject = $('#room_subject').val()
+                var explain = $('#room_explain').val()
+                var tag = $('#room_tag').val()
+                
+                var member = $('#room_member').val()
+                var duedate = $('#due_date').val()
+                var deaddate = $('#dead_date').val()
+                 
+                $.ajax({
+                    type: 'POST',
+                    url : "{% url 'book:make_room' book.category.slug book.id %}",
+                    data: {'subject':subject, 'explain':explain, 'tag':tag, 'member':member, 'duedate':duedate, 'deaddate':deaddate},
+                    success: function(data){
+                    }
+                });
+                window.location.replace("{% url 'book:room_list_' book.category.main.slug book.category.slug 1 %}");
+            });
+        });
+    </script>
+    
+    {% for review in review_for %}
+      <!-- 리뷰 수정 모달 -->
+      <div class="modal fade quick-view" id="update_review{{ review.id }}" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header justify-content-center">
+						<h3 class="modal-title">수정하기</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">
+                        <div id="rating" class="rating-view mb-4">
+                            <span class="add-rating-large pl-0 m-auto m-md-0"></span>
+                        </div>
+						<div class="form-group">
+                            <label for="update_subject{{ review.id }}">Title</label>
+							<input type="text" class="form-control" id="update_subject{{ review.id }}" value="{{ review.subject }}" placeholder="Subject" required="">
+						</div>
+						<div class="form-group">
+                            <label for="update_explain{{ review.id }}">Review</label>
+							<textarea class="form-control" id="update_explain{{ review.id }}" rows="5" placeholder="Review">{{ review.explain }}</textarea>
+						</div>
+                        <input id="pk{{ review.id }}" type="hidden" value="{{ review.id }}">
+                        <input id="update_button{{ review.id }}" type="submit" class="btn btn-primary btn-block" value="수정하기">
+					</div>
+				</div>
+			</div>
+		</div>
+          
+        <!-- 리뷰 삭제 모달 -->
+        <div class="modal fade" id="delete_review{{ review.id }}" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header justify-content-center">
+						<h3 class="modal-title">삭제하기</h3>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">
+                        <span style="font-size:15px;">정말 삭제하시겠습니까?</span>
+                        <br><br>
+                        <button class="btn btn-primary float-right" data-dismiss="modal" style="margin-left:5px;">아니오</button>
+                        <button id="yes{{ review.id }}" class="btn btn-primary float-right">예</button>
+					</div>
+				</div>
+			</div>
+		</div>
+        
+        <!-- 리뷰 수정, 삭제를 위한 ajax -->
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('#update_button{{ review.id }}').click(function(){
+                    var subject = $('#update_subject{{ review.id }}').val()
+                    var explain = $('#update_explain{{ review.id }}').val()
+                    var rating = $('#update_review{{ review.id }} .jq-ry-rated-group').css("width")
+                    var pk = $('#pk{{ review.id }}').val()
+            
+                    $.ajax({
+                        type: 'POST',
+                        url : "{% url 'book:update' %}",
+                        data: {'rating':rating, 'subject':subject, 'explain':explain, 'pk':pk},
+                        success: function(data){
+                        }
+                    });
+                    location.reload();
+                });
+            });
+            
+            $(document).ready(function(){
+                $('#yes{{ review.id }}').click(function(){
+                    $.ajax({
+                        url : "{% url 'book:delete' review.id %}",
+                        success: function(data){
+                        }
+                    });
+                    location.reload();
+                });
+            });
+        </script>
+        {% endfor %}
+        {% endwith %}
+        
+{% endblock %}
+
+<!-- ajax에서의 POST 통신을 위해 csrf 토큰을 넘겨줌 -->
+{% block extra-script %}
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            
+            return cookieValue;
+        }
+
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+    
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    </script>
+{% endblock %}
