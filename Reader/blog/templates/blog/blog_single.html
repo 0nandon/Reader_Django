@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block extra-style %}
+    <style>
+        #change_review, #post {
+            color:#47bac1; !important
+        }
+        #change_review:hover, #post:hover {
+            color:#008080; !important
+        }
+    </style>
+{% endblock %}
+
+{% block blog %}<li class="nav-item active">{% endblock %}
+
+{% load static %}
+    
+{% block banner %}{% endblock %}
+
+{% block main %}
+<!-- LIGHT SECTION -->
+<section class="lightSection clearfix pageHeader">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="page-title">
+          <h2>Blog Single</h2>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <ol class="breadcrumb float-right">
+          <li>
+            <a href="{% url 'home' %}">Home</a>
+          </li>
+          <li class="active">Blog Single</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN CONTENT SECTION -->
+<section class="mainContent clearfix blogPage singleBlog">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="thumbnail">
+          <img src="{{ post.image.url }}" alt="blog-image">
+          <div class="caption">
+            <div class="row">
+              <div class="col-md-3 order-md-12">
+                <h5>Details</h5>
+                <ul class="list-unstyled">
+                  <li><i class="fa fa-user" aria-hidden="true"></i>{{ post.owner.name }}</li>
+                  <li><i class="fa fa-calendar" aria-hidden="true"></i>{{ post.create_dt }}</li>
+                  <li>
+                    <i class="fa fa-tags" aria-hidden="true"></i>
+                    {% load taggit_templatetags2_tags %}
+                    {% get_tags_for_object post as "tags" %}
+                    {% for tag in tags %}
+                    #{{ tag.name }}&nbsp;
+                    {% endfor %}
+                    </li>
+                  <li><i class="fa fa-envelope" aria-hidden="true"></i>{{ comments_num }}개의 댓글</li>
+                  {% if post.owner == user %}
+                  <li style="margin-top:10px;"><a id="post" href="#update_post" data-toggle="modal"><i class="fa fa-wrench" aria-hidden="true"></i>수정</a></li>
+                  <li><a id="post" href="#delete_post" data-toggle="modal"><i class="fa fa-remove" aria-hidden="true"></i>삭제</a></li>
+                  {% endif %}
+                </ul>
+              </div>
+              <div class="col-md-9 order-md-1">
+                <h3>{{ post.subject }}</h3>
+                <p>{{ post.explain|linebreaks }}</p>
+              </div>
+            </div>
+          </div>
+          <ul class="pager">
+            <li class="previous">
+              <a href="{{ post.get_previous.get_absolute_url }}">이전</a>
+            </li>
+            <li class="next float-right">
+              <a href="{{ post.get_next.get_absolute_url }}">다음</a>
+            </li>
+          </ul>
+          <script src="https://code.jquery.com/jquery.min.js"></script>
+          <div class="commentsArea">
+            {% if comments_num == 0 %}
+            <span style="font-size:15px; color:#808080;">아직 달린 댓글이 없습니다.</span><br><br><br>
+            {% else %}
+            <h3>{{ comments_num }}개의 댓글이 달렸습니다.</h3>
+            {% for comment in post.comment_set.all %}
+            <div class="media flex-wrap">
+              <a class="media-left" href="#">
+              {% if not comment.owner.image %}
+              <img class="media-object" src="{% static 'assets/img/blog/avatar.jpg' %}" alt="Image">
+              {% else %}
+              <img class="media-object" style="width:70px; height:70px;" src="{{ comment.owner.image.url }}" alt="Image">
+              {% endif %}
+              </a>
+              <div class="media-body">
+                {% if comment.owner == post.owner %}
+                <h4 class="media-heading">{{ comment.owner.email }}&nbsp;<span style="color:#47bac1;">글쓴이</span></h4>
+                {% else %}
+                <h4 class="media-heading">{{ comment.owner.email }}</h4>
+                {% endif %}
+                <h4>
+                  <span><i class="fa fa-calendar" aria-hidden="true"></i>{{ comment.create_dt }}</span>
+                </h4>
+                {% if comment.owner == user %}
+                <a id="change_review" href="#update_modal{{ comment.id }}" data-toggle="modal">수정</a>
+                <a id="change_review" href="#delete_comment{{ comment.id }}" data-toggle="modal">삭제</a>
+                {% endif %}
+                <p>{{ comment.explain }}</p>
+                <a class="btn btn-link" href="#sub_comment{{ comment.id }}" data-toggle="modal">답변 달기</a>
+                              
+                {% for sub in comment.subcomment_set.all %}
+                <div class="media flex-wrap">
+                  <a class="media-left" href="#">
+                  {% if not sub.owner.image %}
+                  <img class="media-object" src="{% static 'assets/img/blog/avatar.jpg' %}" alt="Image">
+                  {% else %}
+                  <img class="media-object" style="width:60px; height:60px;" src="{{ sub.owner.image.url }}" alt="Image">
+                  {% endif %}
+                  </a>
+                  <div class="media-body">
+                  {% if sub.owner == post.owner %}
+                  <h4 class="media-heading">{{ sub.owner.email }}&nbsp;<span style="color:#47bac1;">글쓴이</span></h4>  
+                  {% else %}
+                  <h4 class="media-heading">{{ sub.owner.email }}</h4>
+                  {% endif %}
+                  <h4>
+                    <span><i class="fa fa-calendar" aria-hidden="true"></i>{{ sub.create_dt }}</span>
+                  </h4>
+                  {% if sub.owner == user %}
+                  <a id="change_review" href="#update_modal{{ sub.id }}" data-toggle="modal">수정</a>
+                  <a id="change_review" href="#delete_comment{{ sub.id }}" data-toggle="modal">삭제</a>
+                  {% endif %}
+                  <p>{{ sub.explain }}</p>
+                </div>
+              </div>
+              
+              <!-- 삭제하기 -->
+              <div class="modal fade" id="delete_comment{{ sub.id }}" tabindex="-1" role="dialog">
+			    <div class="modal-dialog">
+				  <div class="modal-content">
+				    <div class="modal-header justify-content-center">
+				      <h3 class="modal-title">삭제하기</h3>
+					  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">
+                      <span style="font-size:15px;">정말 삭제하시겠습니까?</span>
+                      <br><br>
+                      <button class="btn btn-primary float-right" data-dismiss="modal" style="margin-left:5px;">아니오</button>
+                      <button id="yes{{ sub.id }}" class="btn btn-primary float-right">예</button>
+					</div>
+				  </div>
+		        </div>
+		      </div>
+              
+              <!-- 수정하기 -->
+              <div class="modal fade quick-view" id="update_modal{{ sub.id }}" tabindex="-1" role="dialog">
+			    <div class="modal-dialog">
+				  <div class="modal-content">
+					<div class="modal-header justify-content-center">
+					  <h3 class="modal-title">수정하기</h3>
+					  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">
+                      <div class="commentsForm">
+                        <h3>수정하기</h3>
+						<div class="form-group">
+						  <textarea class="form-control" id="contents_update{{ sub.id }}" rows="3" placeholder="이곳에 답변을 적어주세요.">{{ sub.explain }}</textarea>
+						</div>
+                      </div>
+                      <input id="update{{ sub.id }}" type="submit" class="btn btn-primary btn-block" value="답변 달기">
+					</div>
+				  </div>
+			    </div>
+		      </div>
+                  
+              <script>
+              $(document).ready(function(){
+                  $('#update{{ sub.id }}').click(function(){
+                      var contents = $('#contents_update{{ sub.id }}').val()
+            
+                      $.ajax({
+                          type: 'POST',
+                          url : "{% url 'blog:sub_update' sub.id %}",
+                          data: {'contents':contents},
+                          success: function(data){
+                          }
+                      });
+                      location.reload();
+                  });
+              });
+                                  
+              $(document).ready(function(){
+                  $('#yes{{ sub.id }}').click(function(){
+      
+                      $.ajax({
+                          url : "{% url 'blog:sub_delete' sub.id %}",
+                          success: function(data){
+                          }
+                      });
+                      location.reload();
+                  });
+              });
+              </script>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+          {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="commentsForm">
+          <h3>댓글 남기기</h3>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <textarea id="contents" class="form-control" rows="3" placeholder="댓글을 남겨주세요."></textarea>
+              </div>
+            </div>
+          </div>
+          {% if user.is_active %}
+          <button id="submit" type="submit" class="btn btn-primary">댓글 남기기</button>
+          {% else %}
+          <button class="btn btn-primary" data-toggle="modal" data-target=".login-modal">댓글 남기기</button>   
+          {% endif %}
+        </div>
+      </div>
+      <script type="text/javascript">
+          $(document).ready(function(){
+              $('#submit').click(function(){
+                  var contents = $('#contents').val()
+                                                    
+                  $.ajax({
+                      type: 'POST',
+                      url : "{% url 'blog:comment' post.id %}",
+                      data: {'contents':contents},
+                      success: function(data){
+                      }
+                                            
+                  });
+                  location.reload();
+              });
+          });
+      </script>
+    </div>
+  </div>
+</section>
+    
+<!-- 게시물 삭제하기 -->
+<div class="modal fade" id="delete_post" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+	<div class="modal-content">
+	  <div class="modal-header justify-content-center">
+	    <h3 class="modal-title">삭제하기</h3>
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	  </div>
+	  <div class="modal-body">
+        <span style="font-size:15px;">정말 삭제하시겠습니까?</span>
+        <br><br>
+        <button class="btn btn-primary float-right" data-dismiss="modal" style="margin-left:5px;">아니오</button>
+        <button class="btn btn-primary float-right" onclick="location.href='{% url 'blog:post_delete' post.id %}'">예</button>
+	  </div>
+	</div>
+  </div>
+</div>
+    
+ <!-- 게시물 수정하기 -->
+<div class="modal fade quick-view" id="update_post" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header justify-content-center">
+				<h3 class="modal-title">게시물 올리기</h3>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+                    <label for="">제목</label>
+					<textarea class="form-control" id="post_subject" rows="1" placeholder="제목을 적어주세요">{{ post.subject }}</textarea>
+				</div>
+				<div class="form-group">
+                    <label for="">내용</label>
+					<textarea class="form-control" id="post_explain" rows="5" placeholder="내용을 적어주세요">{{ post.explain }}</textarea>
+				</div>
+                <input type="submit" id="post_update" class="btn btn-primary btn-block" value="게시물 수정하기">
+			</div>
+		</div>
+	</div>
+</div>
+    
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#post_update').click(function(){
+            var subject = $('#post_subject').val()
+            var explain = $('#post_explain').val()
+            
+            $.ajax({
+                type: 'POST',
+                url : "{% url 'blog:post_update' post.id %}",
+                data: {'subject':subject, 'explain':explain},
+                success: function(data){
+                }
+            });
+            location.reload();
+        });
+    });
+</script>>
+
+
+{% for comment in post.comment_set.all %}
+<!-- 댓글 달기 모달 -->
+<div class="modal fade quick-view" id="sub_comment{{ comment.id }}" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header justify-content-center">
+				<h3 class="modal-title">답변하기</h3>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body">
+                <div class="commentsForm">
+                    <h3>답변 달기</h3>
+					<div class="form-group">
+						<textarea class="form-control" id="contents{{ comment.id }}" rows="3" placeholder="이곳에 답변을 적어주세요."></textarea>
+					</div>
+                </div>
+                <input id="submit{{ comment.id }}" type="submit" class="btn btn-primary btn-block" value="답변 달기">
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 댓글 수정 모달 -->
+<div class="modal fade quick-view" id="update_modal{{ comment.id }}" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header justify-content-center">
+				<h3 class="modal-title">수정하기</h3>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body">
+                <div class="commentsForm">
+                    <h3>수정하기</h3>
+					<div class="form-group">
+						<textarea class="form-control" id="contents_update{{ comment.id }}" rows="3" placeholder="이곳에 답변을 적어주세요.">{{ comment.explain }}</textarea>
+					</div>
+                </div>
+                <input id="update{{ comment.id }}" type="submit" class="btn btn-primary btn-block" value="수정하기">
+			</div>
+		</div>
+	</div>
+</div>
+        
+<!-- 댓글 삭제 모달 -->
+<div class="modal fade" id="delete_comment{{ comment.id }}" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header justify-content-center">
+				<h3 class="modal-title">삭제하기</h3>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body">
+                <span style="font-size:15px;">정말 삭제하시겠습니까?</span>
+                <br><br>
+                <button class="btn btn-primary float-right" data-dismiss="modal" style="margin-left:5px;">아니오</button>
+                <button id="yes{{ comment.id }}" class="btn btn-primary float-right">예</button>
+			</div>
+		</div>
+	</div>
+</div>
+    
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#submit{{ comment.id }}').click(function(){
+            var contents = $('#contents{{ comment.id }}').val()
+            
+            $.ajax({
+                type: 'POST',
+                url : "{% url 'blog:sub' comment.id %}",
+                data: {'contents':contents},
+                success: function(data){
+                }
+            });
+            location.reload();
+        });
+    });
+            
+    $(document).ready(function(){
+        $('#update{{ comment.id }}').click(function(){
+            var contents = $('#contents_update{{ comment.id }}').val()
+            
+            $.ajax({
+                type: 'POST',
+                url : "{% url 'blog:comment_update' comment.id %}",
+                data: {'contents':contents},
+                success: function(data){
+                }
+            });
+            location.reload();
+        });
+    });
+            
+    $(document).ready(function(){
+        $('#yes{{ comment.id }}').click(function(){
+      
+            $.ajax({
+                url : "{% url 'blog:comment_delete' comment.id %}",
+                success: function(data){
+                }
+            });
+            location.reload();
+        });
+    });
+</script>
+{% endfor %}
+{% endblock %}
+    
+<!-- ajax에서의 POST 통신을 위해 csrf 토큰을 넘겨줌 -->
+{% block extra-script %}
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            
+            return cookieValue;
+        }
+
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+    
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    </script>
+{% endblock %}

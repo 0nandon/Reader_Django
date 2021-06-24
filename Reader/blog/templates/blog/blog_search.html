@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block extra-style %}
+<style>
+ .txt_post {
+    display:block;
+    max-height:128px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+{% endblock %}
+
+{% block blog %}<li class="nav-item active">{% endblock %}
+
+{% load static %}
+    
+{% load widget_tweaks %}
+    
+{% block banner %}{% endblock %}
+    
+{% block main %}
+<!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="page-title">
+                <h2>검색결과</h2>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <ol class="breadcrumb float-right">
+                <li>
+                  <a href="index.html">Home</a>
+                </li>
+                <li class="active">검색결과</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix blogPage">
+        <div class="container">
+          <div class="row">
+            {% if posts|length == 0 %}
+            <p style="color:#808080; font-size:20px;">검색결과가 없습니다.</p>
+            {% else %}
+            {% for post in posts %}
+            <div class="col-sm-12">
+              <div class="thumbnail">
+                <a href="{{ post.get_absolute_url }}"><img class="mw-100" src="{{ post.image.url }}" alt="blog-image"></a>
+                  <div class="caption">
+                    <div class="row">
+                      <div class="col-md-3 order-md-12">
+                        <h5>Details</h5>
+                        <ul class="list-unstyled">
+                          <li><i class="fa fa-user" aria-hidden="true"></i>{{ post.owner.name }}</li>
+                          <li><i class="fa fa-calendar" aria-hidden="true"></i>{{ post.create_dt }}</li>
+                          <li><i class="fa fa-tags" aria-hidden="true"></i>
+                          {% load taggit_templatetags2_tags %}
+                          {% get_tags_for_object post as "tags" %}
+                          {% for tag in tags %}
+                          #{{ tag.name }}&nbsp;
+                          {% endfor %}  
+                          </li>
+                        <li><i class="fa fa-envelope" aria-hidden="true"></i>{{ post.get_comments_num }}개의 댓글</li>
+                      </ul>
+                    </div>
+                    <div class="col-md-9 order-md-1">
+                      <h3><a href="{{ post.get_absolute_url }}">{{ post.subject }}</a></h3>
+                      <p><span class="txt_post">{{ post.explain }}</span><br>
+                      <a href="{{ post.get_absolute_url }}"><span style="color:#47bac1;">더보기 &raquo;</span></a></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </section>
+{% endblock %}

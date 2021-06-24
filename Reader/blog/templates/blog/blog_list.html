@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block extra-style %}
+<style>
+ .txt_post {
+    display:block;
+    max-height:128px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+{% endblock %}
+
+{% block blog %}<li class="nav-item active">{% endblock %}
+
+{% load static %}
+    
+{% load widget_tweaks %}
+    
+{% block banner %}{% endblock %}
+    
+{% block main %}
+<!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="page-title">
+                <h2>게시판</h2>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <ol class="breadcrumb float-right">
+                <li>
+                  <a href="{% url 'home' %}">홈</a>
+                </li>
+                <li class="active">게시판</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix blogPage">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-9 col-sm-12 order-lg-12">
+              <div class="row">
+                {% if posts|length == 0 %}
+                <p style="color:#808080; font-size:20px;">아직 등록된 게시물이 없습니다.</p>
+                {% else %}
+                {% for post in posts %}
+                <div class="col-sm-12">
+                  <div class="thumbnail">
+                    <a href="{{ post.get_absolute_url }}"><img class="mw-100" src="{{ post.image.url }}" alt="blog-image"></a>
+                    <div class="caption">
+                      <div class="row">
+                        <div class="col-md-3 order-md-12">
+                          <h5>Details</h5>
+                          <ul class="list-unstyled">
+                            <li><i class="fa fa-user" aria-hidden="true"></i>{{ post.owner.name }}</li>
+                            <li><i class="fa fa-calendar" aria-hidden="true"></i>{{ post.create_dt|date:"Y년 m월 d일" }}</li>
+                            <li><i class="fa fa-tags" aria-hidden="true"></i>
+                            {% load taggit_templatetags2_tags %}
+                            {% get_tags_for_object post as "tags" %}
+                            {% for tag in tags %}
+                            #{{ tag.name }}&nbsp;
+                            {% endfor %}  
+                            </li>
+                            <li><i class="fa fa-envelope" aria-hidden="true"></i>{{ post.get_comments_num }}개의 댓글</li>
+                          </ul>
+                        </div>
+                        <div class="col-md-9 order-md-1">
+                          <h3><a href="{{ post.get_absolute_url }}">{{ post.subject }}</a></h3>
+                          <p><span class="txt_post">{{ post.explain }}</span><br>
+                            <a href="{{ post.get_absolute_url }}"><span style="color:#47bac1;">더보기 &raquo;</span></a></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+              </div>
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="text-left">
+                    <ul class="pagination">
+                      {% if present_page_obj.has_previous %}
+                      <li>
+                        <a href="{% url 'blog:blog_page' category_now present_page_obj.previous_page_number %}" aria-label="Next">
+                          <span aria-hidden="true">&laquo;</span>
+                        </a>
+                      </li>
+                      {% endif %}
+                      {% for idx in page_obj.page_range %}
+                      {% if idx == present_page %}
+                      <li class="active"><a href="#">{{ idx }}</a></li>
+                      {% else %}
+                      <li><a href="{% url 'blog:blog_page' category_now idx %}">{{ idx }}</a></li>
+                      {% endif %}
+                      {% endfor %}
+                      {% if present_page_obj.has_next %}
+                      <li>
+                        <a href="{% url 'blog:blog_page' category_now present_page_obj.next_page_number %}" aria-label="Next">
+                          <span aria-hidden="true">&raquo;</span>
+                        </a>
+                      </li>
+                      {% endif %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-sm-12 order-lg-1 sideBar">
+              {% if user.is_active %}
+              <a href="#create_post" data-toggle="modal"><button class="btn btn-primary-outlined" type="submit" style="width:100%; margin-bottom:10px;">게시물 올리기</button></a>
+              {% endif %}
+              <form class="input-group" action="{% url 'blog:search' %}" method="post" role="form">{% csrf_token %}
+                <input name="search" type="text" class="form-control" placeholder="검색" aria-describedby="basic-addon2">
+                <button type="submit" class="input-group-addon" id="basic-addon2"><i class="fa fa-search"></i></button>
+              </form>
+              <div class="panel panel-default">
+                <div class="panel-heading">도서 분류</div>
+                <div class="panel-body">
+                  <ul class="list-unstyle sidebar-list">
+                    {% for category in categories %}
+                    {% if category.slug == category_now %}
+                    <li><a style="color:#47bac1;" href="{% url 'blog:blog' category %}"><i class="fa fa-caret-right" aria-hidden="true"></i>{{ category }}</a></li>
+                    {% else %}
+                    <li><a href="{% url 'blog:blog' category %}"><i class="fa fa-caret-right" aria-hidden="true"></i>{{ category }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+              <div class="panel panel-default recentBlogPosts">
+                <div class="panel-heading">최근 게시물</div>
+                <div class="panel-body">
+                  {% for recent in recents %}
+                  <div class="media">
+                    <a class="media-left" href="{{ recent.get_absolute_url }}">
+                      <img class="media-object" style="height:70px; width:70px;" src="{{ recent.image.url }}" alt="Image">
+                    </a>
+                    <div class="media-body">
+                      <h4 class="media-heading"><a href="{{ recent.get_absolute_url }}">{{ recent.subject }}</a></h4>
+                      <p><i class="fa fa-calendar" aria-hidden="true"></i>{{ recent.create_dt|date:"Y년 m월 d일" }}</p>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    
+      <!-- 방 만들기 -->
+    <div class="modal fade quick-view" id="create_post" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header justify-content-center">
+					<h3 class="modal-title">게시물 올리기</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				</div>
+				<div class="modal-body">
+                    <form enctype="multipart/form-data" action="." method="POST" class="form-horizontal">
+                    {% csrf_token %}
+					<div class="form-group">
+                        <label for="">제목</label>
+						{% render_field form_post.subject rows="1" class="form-control" placeholder="제목을 적어주세요."  required="" %}
+					</div>
+					<div class="form-group">
+                        <label for="">내용</label>
+						{% render_field form_post.explain rows="5" class="form-control" placeholder="내용을 적어주세요." required="" %}
+					</div>
+                    <div class="form-group">
+                        <label for="">이미지</label>
+						{% render_field form_post.image class="form-control" required="" %}
+					</div>
+                    <div class="form-group">
+                        <label for="">태그</label>
+                        {% render_field form_post.tag class="form-control" placeholder="게시물을 설명할 수 있는 대표적인 단어들로 태그를 달아주세요." required="" %}
+					</div>
+                    <input type="submit" class="btn btn-primary btn-block" value="게시물 올리기">
+                    </form>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+<!-- ajax에서의 POST 통신을 위해 csrf 토큰을 넘겨줌 -->
+{% block extra-script %}
+{% endblock %}
