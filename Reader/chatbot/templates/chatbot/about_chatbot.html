@@ -1,0 +1,111 @@
+
+{% extends "base.html" %}
+
+{% block chatbot %}<li class="nav-item active">{% endblock %}
+
+{% load static %}
+    
+{% block banner %}{% endblock %}
+
+{% block main %}
+ <!-- LIGHT SECTION -->
+      <section class="lightSection clearfix pageHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="page-title">
+                <h2>챗봇 '리아'</h2>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <ol class="breadcrumb float-right">
+                <li>
+                  <a href="{% url 'home' %}">홈</a>
+                </li>
+                <li class="active">챗봇</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT SECTION -->
+      <section class="mainContent clearfix aboutUsInfo">
+        <div class="container">
+          <div class="page-header">
+            <h3>Reader의 챗봇 '리아'를 소개합니다.</h3>
+          </div>
+          <div class="row">
+            <div class="col-md-6 order-sm-12">
+              <img src="{% static 'img/chatbot.png' %}" alt="about-us-img">
+            </div>
+            <div class="col-md-6 order-sm-1">
+              <p class="lead">챗봇 '리아'는 사용자들의 독서 생활을 보조하는 ai 챗봇입니다.</p>
+              <p>'리아'는 Slot Filling 모델을 기반으로 구축된 Close domain 챗봇입니다. 사용자들을 위해 yes24에 선정된 베스트셀러 목록을 알려주며, 이외 전국 지역의 날씨, 맛집, 관광지를 알려주는 기본적인 기능들을 탑재하고 있습니다. 현재는 대화 데이터가 부족해서 제공되는 기능의 수가 적고, 이해할 수 있는 문장들도 한정적이지만, 더욱 방대한 데이터와 함께 앞으로의 업데이트에서 훨씬 다양한 기능들을 제공할 예정입니다. 😉<br><br><span style="color:#47bac1;">아래 목록은 대화 예시입니다.</span></p>
+              <ul class="unorder-list lists">
+                <li>오늘 베스트셀러 알려줭!</li>
+                <li>3월 베스트셀러 알려줄래?ㅎㅎ</li>
+                <li>진주 날씨 좀</li>
+                <li>안양 맛집 부탁해~</li>
+                <li>내일 미세먼지 좋을까?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DARK SECTION -->
+      <section class="darkSection clearfix">
+        <div class="container">
+          <h3>리아는 이런 기능을 준비했고, 준비할거에요.</h3>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="thumbnail">
+                <div class="caption">
+                  <h5>1. 베스트셀러</h5>
+                  <address>
+                    '오늘 베스트셀러 알려줘!' 라고 말해보세요. <br>
+                    yes24에서 선정된 베스트셀러를 알려줍니다.  <br>
+                    목록을 참고하여, 오늘 읽을 책을 골라보세요.  <br>
+                  </address>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="thumbnail">
+                <div class="caption">
+                  <h5>2. 날씨, 맛집, 관광지</h5>
+                  <address>
+                    리아는 전국 지역의 날씨, 맛집, 관광지 정보를 <br>
+                    알려줍니다. 해당 정보를 토대로 유저들과 친해져 보세요! <br>
+                  </address>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="thumbnail">
+                <div class="caption">
+                  <h5>3. 유명한 작가</h5>
+                  <address>
+                    준비중인 기능입니다.
+                  </address>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="thumbnail">
+                <div class="caption">
+                  <h5>4. 함께 보면 좋은 영화</h5>
+                  <address>
+                    준비중인 기능입니다.
+                  </address>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <button type="button" onclick="window.open('https://kochat2.run.goorm.io')" class="btn btn-primary-outlined btn-default">챗봇 시작하기</button>
+            </div>
+          </div>
+        </div>
+      </section>
+{% endblock %}
