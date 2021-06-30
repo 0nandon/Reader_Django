@@ -98,7 +98,7 @@
                     <ul class="dropdown-menu dropdown-menu-right">
                       <li>
                         <form class="input-group" action="{% url 'search' %}" method="post" role="form">{% csrf_token %}
-                          <input name="home_search" type="text" class="form-control" placeholder="검색…" id="home_search" aria-describedby="basic-addon2">
+                          <input name="home_search" type="text" class="form-control" placeholder="책 제목을 입력해주세요." id="home_search" aria-describedby="basic-addon2">
                           <button type="submit" class="input-group-addon" id="home_submit">검색</button>
                         </form>
                       </li>
@@ -510,6 +510,10 @@
 								<label for="email">이메일</label>
                                 {% render_field form_signup.email class="form-control" %}
 							</div>
+                            <div class="form-group">
+								<label for="name">이름</label>
+                                {% render_field form_signup.name class="form-control" %}
+							</div>
 							<div class="form-group">
 								<label for="password1">비밀번호</label>
 								{% render_field form_signup.password1 class="form-control" %}
@@ -519,8 +523,6 @@
 								{% render_field form_signup.password2 class="form-control" %}
 							</div>
 							<input type="submit" class="btn btn-primary btn-block" value="회원가입">
-                            
-							<button type="button" class="btn btn-link btn-block">New User?</button>
 						</form>
 					</div>
 				</div>
@@ -588,7 +590,13 @@
                                 {% endfor %}
                                 </span>
                                 <br><br>
+                                {% with img=room_modal.get_leader_img %}
+                                {% if img %}
+                                <img class="mr-4" style="width:30px; height:30px; border-radius:100%;" src="{{ img.url }}" alt="Generic placeholder image"><em>{{ room_modal.leader }}님이 개설한 방입니다.</em>
+                                {% else %}
                                 <img class="mr-4 rounded rounded-circle" style="width:30px;" src="{% static 'img/profile.jpg' %}" alt="Generic placeholder image"><em>{{ room_modal.leader }}님이 개설한 방입니다.</em>
+                                {% endif %}
+                                {% endwith %}
                                 </p>
                                 {% if not user.is_active %}
 								<div class="btn-area">
