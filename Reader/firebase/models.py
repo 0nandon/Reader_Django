@@ -6,8 +6,6 @@ from django.urls import reverse_lazy
 import time
 import numpy as np
 
-from firebase.firebase import db
-
 
 class UserProgress:
     def __init__(self, user, progress):
@@ -121,11 +119,15 @@ class Room(object):
         return book.name
 
     def get_user_num(self):
-        rooms = db.collection(self.category).where(u'pk', u'==', self.pk).stream()
+        return len(self.user)
 
-        for room in rooms:
-            room_obj = Room.from_dict(room.to_dict())
-            return len(room_obj.user)
+    def get_leader_img(self):
+        user = get_object_or_404(User, email=self.leader)
+
+        if user.image:
+            return user.image
+        else:
+            return None
 
     def __repr__(self):
         return(
